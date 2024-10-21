@@ -4,6 +4,7 @@ import {
   InsufficientFundsError,
   TransferFailedError,
 } from '.';
+import lodash from 'lodash';
 
 describe('BankAccount', () => {
   let currentAcc: BankAccount;
@@ -60,14 +61,28 @@ describe('BankAccount', () => {
   });
 
   test('fetchBalance should return number in case if request did not failed', async () => {
-    // Write your tests here
+    const spy = jest.spyOn(lodash, 'random');
+    spy.mockReturnValueOnce(10).mockReturnValueOnce(5);
+    const balance = await currentAcc.fetchBalance();
+    expect(balance).toBe(10);
+    expect(typeof balance).toBe('number');
+    spy.mockRestore();
   });
 
   test('should set new balance if fetchBalance returned number', async () => {
-    // Write your tests here
+    const spy = jest.spyOn(lodash, 'random');
+    spy.mockReturnValueOnce(10).mockReturnValueOnce(5);
+    await currentAcc.synchronizeBalance();
+    expect(currentAcc.getBalance()).toBe(10);
+    spy.mockRestore();
   });
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
-    // Write your tests here
+    const spy = jest.spyOn(lodash, 'random');
+    spy.mockImplementationOnce(() => 10).mockImplementationOnce(() => 0);
+    await expect(currentAcc.synchronizeBalance()).rejects.toThrow(
+      'Synchronization failed',
+    );
+    spy.mockRestore();
   });
 });
